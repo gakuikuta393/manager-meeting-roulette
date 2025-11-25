@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +19,7 @@
             --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
             --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.2);
             --transition-smooth: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-            
+
             /* Roulette Sector Colors */
             --color-1: #FF6B6B;
             --color-2: #4ECDC4;
@@ -479,6 +480,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -489,6 +491,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -500,6 +503,7 @@
                 opacity: 0;
                 transform: translateX(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -511,6 +515,7 @@
                 opacity: 0;
                 transform: translateX(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -522,6 +527,7 @@
                 opacity: 0;
                 transform: scale(0.8);
             }
+
             to {
                 opacity: 1;
                 transform: scale(1);
@@ -529,9 +535,12 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.05);
             }
@@ -569,6 +578,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- Header -->
@@ -613,12 +623,7 @@
 
                 <div class="add-department-form">
                     <div class="input-group">
-                        <input 
-                            type="text" 
-                            id="departmentInput" 
-                            placeholder="部門名を入力"
-                            maxlength="50"
-                        />
+                        <input type="text" id="departmentInput" placeholder="部門名を入力" maxlength="50" />
                         <button class="add-button" id="addButton">追加</button>
                     </div>
                     <div class="input-hint">最大50文字まで入力できます</div>
@@ -635,6 +640,20 @@
             <div class="result-title">🎉 当選部門 🎉</div>
             <div class="result-department" id="resultDepartment"></div>
             <button class="close-result-btn" id="closeResultButton">閉じる</button>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="result-section" id="deleteConfirmModal">
+        <div class="result-content">
+            <div class="result-title">⚠️ 確認</div>
+            <div class="result-department" id="deleteConfirmText" style="font-size: 1.5rem;"></div>
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button class="close-result-btn" id="confirmDeleteButton"
+                    style="flex: 1; background: linear-gradient(135deg, #FF6B6B 0%, #f5576c 100%);">削除</button>
+                <button class="close-result-btn" id="cancelDeleteButton"
+                    style="flex: 1; background: rgba(255, 255, 255, 0.1);">キャンセル</button>
+            </div>
         </div>
     </div>
 
@@ -714,22 +733,54 @@
                 return true;
             }
 
-            deleteDepartment(name) {
+            deleteDepartment(name, callback) {
                 const data = this.storage.loadData();
 
                 if (data.departments.length <= this.MIN_DEPARTMENTS) {
                     alert(`最低${this.MIN_DEPARTMENTS}つの部門が必要です`);
-                    return false;
+                    if (callback) callback(false);
+                    return;
                 }
 
-                if (!confirm(`「${name}」を削除しますか?`)) {
-                    return false;
-                }
+                // カスタム確認モーダルを表示
+                this.showDeleteConfirmation(name, (confirmed) => {
+                    if (confirmed) {
+                        data.departments = data.departments.filter(dept => dept !== name);
+                        this.storage.saveData(data);
+                        this.onUpdate();
+                    }
+                    if (callback) callback(confirmed);
+                });
+            }
 
-                data.departments = data.departments.filter(dept => dept !== name);
-                this.storage.saveData(data);
-                this.onUpdate();
-                return true;
+            showDeleteConfirmation(name, callback) {
+                const modal = document.getElementById('deleteConfirmModal');
+                const text = document.getElementById('deleteConfirmText');
+                const confirmBtn = document.getElementById('confirmDeleteButton');
+                const cancelBtn = document.getElementById('cancelDeleteButton');
+
+                text.textContent = `「${name}」を削除しますか?`;
+                modal.classList.add('show');
+
+                const handleConfirm = () => {
+                    modal.classList.remove('show');
+                    cleanup();
+                    callback(true);
+                };
+
+                const handleCancel = () => {
+                    modal.classList.remove('show');
+                    cleanup();
+                    callback(false);
+                };
+
+                const cleanup = () => {
+                    confirmBtn.removeEventListener('click', handleConfirm);
+                    cancelBtn.removeEventListener('click', handleCancel);
+                };
+
+                confirmBtn.addEventListener('click', handleConfirm);
+                cancelBtn.addEventListener('click', handleCancel);
             }
         }
 
@@ -880,7 +931,7 @@
 
                 const targetIndex = allDepartments.indexOf(targetDepartment);
                 const anglePerDept = (2 * Math.PI) / allDepartments.length;
-                
+
                 // ポインター位置（上部中央）に合わせる
                 const targetAngle = targetIndex * anglePerDept;
                 const baseRotation = Math.PI * 2 * 5; // 5回転
@@ -1066,4 +1117,5 @@
         });
     </script>
 </body>
+
 </html>
