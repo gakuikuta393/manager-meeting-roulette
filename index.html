@@ -153,34 +153,20 @@
             justify-content: center;
             font-weight: 700;
             font-size: 0.9rem;
-        }
-
-        .start-button {
-            width: 100%;
-            padding: 18px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            border-radius: 16px;
             cursor: pointer;
             transition: var(--transition-smooth);
-            box-shadow: var(--shadow-md);
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .start-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+        .center-circle:hover:not(.disabled) {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
         }
 
-        .start-button:active:not(:disabled) {
-            transform: translateY(0);
+        .center-circle:active:not(.disabled) {
+            transform: translate(-50%, -50%) scale(1.05);
         }
 
-        .start-button:disabled {
+        .center-circle.disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
@@ -595,11 +581,9 @@
                     <div class="canvas-wrapper">
                         <div class="pointer"></div>
                         <canvas id="rouletteCanvas"></canvas>
-                        <div class="center-circle">START</div>
+                        <div class="center-circle" id="centerStartButton">START</div>
                     </div>
                 </div>
-
-                <button class="start-button" id="startButton">スタート</button>
 
                 <div class="history-section">
                     <h3 class="history-title">抽選履歴</h3>
@@ -932,8 +916,8 @@
                 const targetIndex = allDepartments.indexOf(targetDepartment);
                 const anglePerDept = (2 * Math.PI) / allDepartments.length;
 
-                // ポインター位置（上部中央）に合わせる
-                const targetAngle = targetIndex * anglePerDept;
+                // ポインター位置（上部中央）に部門の中心が来るように調整
+                const targetAngle = targetIndex * anglePerDept + anglePerDept / 2;
                 const baseRotation = Math.PI * 2 * 5; // 5回転
                 const finalRotation = baseRotation + (2 * Math.PI - targetAngle);
 
@@ -984,8 +968,8 @@
             }
 
             initializeEventListeners() {
-                // スタートボタン
-                document.getElementById('startButton').addEventListener('click', () => {
+                // 中央のSTARTボタン
+                document.getElementById('centerStartButton').addEventListener('click', () => {
                     this.startLottery();
                 });
 
@@ -1045,9 +1029,9 @@
                 }
 
                 // ボタンを無効化
-                const startButton = document.getElementById('startButton');
-                startButton.disabled = true;
-                startButton.textContent = '回転中...';
+                const centerButton = document.getElementById('centerStartButton');
+                centerButton.classList.add('disabled');
+                centerButton.textContent = '回転中...';
 
                 // 抽選実行
                 const selected = this.lotteryEngine.performLottery();
@@ -1063,8 +1047,8 @@
                 this.updateUI();
 
                 // ボタンを有効化
-                startButton.disabled = false;
-                startButton.textContent = 'スタート';
+                centerButton.classList.remove('disabled');
+                centerButton.textContent = 'START';
             }
 
             updateUI() {
