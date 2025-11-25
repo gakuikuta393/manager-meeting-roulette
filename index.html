@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マネージャー会議ルーレット</title>
+    <style>
+        /* ========== CSS Variables - Design System ========== */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --background-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            --surface-color: rgba(255, 255, 255, 0.05);
+            --surface-hover: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.2);
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            
+            /* Roulette Sector Colors */
+            --color-1: #FF6B6B;
+            --color-2: #4ECDC4;
+            --color-3: #45B7D1;
+            --color-4: #FFA07A;
+            --color-5: #98D8C8;
+            --color-6: #F7DC6F;
+            --color-7: #BB8FCE;
+            --color-8: #85C1E2;
+            --color-9: #F8B739;
+            --color-10: #52B788;
+            --color-11: #E63946;
+            --color-12: #A8DADC;
+        }
+
+        /* ========== Global Styles ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        /* ========== Container ========== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ========== Header ========== */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* ========== Main Layout ========== */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* ========== Roulette Section ========== */
+        .roulette-section {
+            background: var(--surface-color);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            animation: fadeInLeft 0.6s ease-out;
+        }
+
+        .roulette-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+        }
+
+        #rouletteCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #f5576c;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            z-index: 10;
+        }
+
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .start-button {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-md);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .start-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .start-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .history-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .history-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+
+        .history-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: var(--transition-smooth);
+        }
+
+        .history-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            min-width: 70px;
+        }
+
+        .history-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .reset-history-btn {
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            font-size: 0.9rem;
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            border: 1px solid #FF6B6B;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .reset-history-btn:hover {
+            background: rgba(255, 107, 107, 0.3);
+        }
+
+        /* ========== Management Section ========== */
+        .management-section {
+            background: var(--surface-color);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            animation: fadeInRight 0.6s ease-out;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .add-department-form {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        #departmentInput {
+            flex: 1;
+            padding: 14px 18px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            transition: var(--transition-smooth);
+        }
+
+        #departmentInput:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        #departmentInput::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .add-button {
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            white-space: nowrap;
+        }
+
+        .add-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
+        }
+
+        .add-button:active {
+            transform: translateY(0);
+        }
+
+        .input-hint {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .departments-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .departments-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .departments-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .departments-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .departments-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .department-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            border: 1px solid transparent;
+            transition: var(--transition-smooth);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .department-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--border-color);
+        }
+
+        .department-item.excluded {
+            opacity: 0.5;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .department-name {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .excluded-badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            border-radius: 6px;
+            margin-left: 10px;
+        }
+
+        .delete-button {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .delete-button:hover {
+            background: rgba(255, 107, 107, 0.3);
+            border-color: #FF6B6B;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            opacity: 0.3;
+        }
+
+        /* ========== Result Display ========== */
+        .result-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .result-section.show {
+            display: flex;
+        }
+
+        .result-content {
+            background: var(--surface-color);
+            backdrop-filter: blur(20px);
+            padding: 60px;
+            border-radius: 32px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 500px;
+            animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .result-department {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .close-result-btn {
+            padding: 16px 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .close-result-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* ========== Animations ========== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* ========== Responsive Design ========== */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .management-section {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .roulette-section,
+            .management-section {
+                padding: 20px;
+            }
+
+            .result-content {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+
+            .result-department {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🎯 マネージャー会議ルーレット</h1>
+            <p>発表部門をランダムに決定します</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Roulette Section -->
+            <section class="roulette-section">
+                <div class="roulette-container">
+                    <div class="canvas-wrapper">
+                        <div class="pointer"></div>
+                        <canvas id="rouletteCanvas"></canvas>
+                        <div class="center-circle">START</div>
+                    </div>
+                </div>
+
+                <button class="start-button" id="startButton">スタート</button>
+
+                <div class="history-section">
+                    <h3 class="history-title">抽選履歴</h3>
+                    <div class="history-items" id="historyDisplay">
+                        <div class="history-item">
+                            <span class="history-label">前回：</span>
+                            <span class="history-value" id="lastResult">-</span>
+                        </div>
+                        <div class="history-item">
+                            <span class="history-label">前々回：</span>
+                            <span class="history-value" id="secondLastResult">-</span>
+                        </div>
+                    </div>
+                    <button class="reset-history-btn" id="resetHistoryButton">履歴をリセット</button>
+                </div>
+            </section>
+
+            <!-- Management Section -->
+            <section class="management-section">
+                <h2 class="section-title">部門管理</h2>
+
+                <div class="add-department-form">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="departmentInput" 
+                            placeholder="部門名を入力"
+                            maxlength="50"
+                        />
+                        <button class="add-button" id="addButton">追加</button>
+                    </div>
+                    <div class="input-hint">最大50文字まで入力できます</div>
+                </div>
+
+                <div class="departments-list" id="departmentsList"></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="result-section" id="resultModal">
+        <div class="result-content">
+            <div class="result-title">🎉 当選部門 🎉</div>
+            <div class="result-department" id="resultDepartment"></div>
+            <button class="close-result-btn" id="closeResultButton">閉じる</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== Storage Manager ==========
+        class StorageManager {
+            constructor() {
+                this.STORAGE_KEY = 'rouletteData';
+                this.defaultData = {
+                    departments: ['営業部', '開発部', 'マーケティング部'],
+                    history: []
+                };
+            }
+
+            loadData() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    return data ? JSON.parse(data) : this.defaultData;
+                } catch (error) {
+                    console.error('データの読み込みに失敗しました:', error);
+                    return this.defaultData;
+                }
+            }
+
+            saveData(data) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                } catch (error) {
+                    console.error('データの保存に失敗しました:', error);
+                }
+            }
+
+            resetHistory() {
+                const data = this.loadData();
+                data.history = [];
+                this.saveData(data);
+            }
+        }
+
+        // ========== Department Manager ==========
+        class DepartmentManager {
+            constructor(storageManager, onUpdate) {
+                this.storage = storageManager;
+                this.onUpdate = onUpdate;
+                this.MIN_DEPARTMENTS = 3;
+                this.MAX_NAME_LENGTH = 50;
+            }
+
+            getDepartments() {
+                return this.storage.loadData().departments;
+            }
+
+            addDepartment(name) {
+                const trimmedName = name.trim();
+
+                if (!trimmedName) {
+                    alert('部門名を入力してください');
+                    return false;
+                }
+
+                if (trimmedName.length > this.MAX_NAME_LENGTH) {
+                    alert(`部門名は${this.MAX_NAME_LENGTH}文字以内で入力してください`);
+                    return false;
+                }
+
+                const data = this.storage.loadData();
+                const lowerCaseName = trimmedName.toLowerCase();
+
+                if (data.departments.some(dept => dept.toLowerCase() === lowerCaseName)) {
+                    alert('この部門名は既に登録されています');
+                    return false;
+                }
+
+                data.departments.push(trimmedName);
+                this.storage.saveData(data);
+                this.onUpdate();
+                return true;
+            }
+
+            deleteDepartment(name) {
+                const data = this.storage.loadData();
+
+                if (data.departments.length <= this.MIN_DEPARTMENTS) {
+                    alert(`最低${this.MIN_DEPARTMENTS}つの部門が必要です`);
+                    return false;
+                }
+
+                if (!confirm(`「${name}」を削除しますか?`)) {
+                    return false;
+                }
+
+                data.departments = data.departments.filter(dept => dept !== name);
+                this.storage.saveData(data);
+                this.onUpdate();
+                return true;
+            }
+        }
+
+        // ========== Lottery Engine ==========
+        class LotteryEngine {
+            constructor(storageManager) {
+                this.storage = storageManager;
+            }
+
+            getEligibleDepartments() {
+                const data = this.storage.loadData();
+                const { departments, history } = data;
+
+                // 除外リスト（前回・前々回）
+                const excludedDepts = history.slice(0, 2);
+
+                // 抽選対象を決定
+                let eligible = departments.filter(dept => !excludedDepts.includes(dept));
+
+                // 抽選対象が3未満の場合、最も古い履歴から除外解除
+                if (eligible.length < 3 && history.length > 0) {
+                    eligible = departments.filter(dept => dept !== history[0]);
+                }
+
+                // それでも対象が少ない場合は全部門を対象に
+                if (eligible.length === 0) {
+                    eligible = [...departments];
+                }
+
+                return eligible;
+            }
+
+            performLottery() {
+                const eligible = this.getEligibleDepartments();
+
+                if (eligible.length === 0) {
+                    return null;
+                }
+
+                // ランダム選択
+                const randomIndex = Math.floor(Math.random() * eligible.length);
+                const selected = eligible[randomIndex];
+
+                // 履歴を更新
+                const data = this.storage.loadData();
+                data.history.unshift(selected);
+                data.history = data.history.slice(0, 2); // 最新2件のみ保持
+                this.storage.saveData(data);
+
+                return selected;
+            }
+
+            getHistory() {
+                return this.storage.loadData().history;
+            }
+        }
+
+        // ========== Roulette Renderer ==========
+        class RouletteRenderer {
+            constructor(canvas, departments, excludedDepts) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.departments = departments;
+                this.excludedDepts = excludedDepts || [];
+                this.colors = [
+                    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
+                    '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2',
+                    '#F8B739', '#52B788', '#E63946', '#A8DADC'
+                ];
+                this.rotation = 0;
+                this.setupCanvas();
+            }
+
+            setupCanvas() {
+                const size = this.canvas.offsetWidth;
+                const dpr = window.devicePixelRatio || 1;
+                this.canvas.width = size * dpr;
+                this.canvas.height = size * dpr;
+                this.ctx.scale(dpr, dpr);
+                this.canvas.style.width = size + 'px';
+                this.canvas.style.height = size + 'px';
+            }
+
+            draw(rotation = 0) {
+                this.rotation = rotation;
+                const size = this.canvas.offsetWidth;
+                const centerX = size / 2;
+                const centerY = size / 2;
+                const radius = size / 2 - 10;
+
+                this.ctx.clearRect(0, 0, size, size);
+
+                const deptCount = this.departments.length;
+                const anglePerDept = (2 * Math.PI) / deptCount;
+
+                // Draw sectors
+                this.departments.forEach((dept, index) => {
+                    const startAngle = rotation + index * anglePerDept - Math.PI / 2;
+                    const endAngle = startAngle + anglePerDept;
+                    const isExcluded = this.excludedDepts.includes(dept);
+
+                    // Draw sector
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(centerX, centerY);
+                    this.ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                    this.ctx.closePath();
+
+                    const color = this.colors[index % this.colors.length];
+                    this.ctx.fillStyle = isExcluded ? '#555555' : color;
+                    this.ctx.fill();
+
+                    // Draw border
+                    this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+
+                    // Draw text
+                    this.ctx.save();
+                    this.ctx.translate(centerX, centerY);
+                    this.ctx.rotate(startAngle + anglePerDept / 2);
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillStyle = isExcluded ? '#888888' : '#ffffff';
+                    this.ctx.font = `${Math.min(600 / deptCount, 18)}px Inter, sans-serif`;
+                    this.ctx.fontWeight = '600';
+                    this.ctx.fillText(dept, radius * 0.65, 0);
+                    this.ctx.restore();
+                });
+            }
+
+            updateDepartments(departments, excludedDepts) {
+                this.departments = departments;
+                this.excludedDepts = excludedDepts || [];
+                this.draw(this.rotation);
+            }
+        }
+
+        // ========== Animation Controller ==========
+        class AnimationController {
+            constructor(renderer) {
+                this.renderer = renderer;
+                this.isAnimating = false;
+            }
+
+            async spin(targetDepartment, allDepartments) {
+                if (this.isAnimating) return;
+                this.isAnimating = true;
+
+                const targetIndex = allDepartments.indexOf(targetDepartment);
+                const anglePerDept = (2 * Math.PI) / allDepartments.length;
+                
+                // ポインター位置（上部中央）に合わせる
+                const targetAngle = targetIndex * anglePerDept;
+                const baseRotation = Math.PI * 2 * 5; // 5回転
+                const finalRotation = baseRotation + (2 * Math.PI - targetAngle);
+
+                const duration = 4000; // 4秒
+                const startTime = Date.now();
+
+                return new Promise((resolve) => {
+                    const animate = () => {
+                        const elapsed = Date.now() - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+
+                        // イージング関数（cubic-bezier）
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        const currentRotation = finalRotation * easeOut;
+
+                        this.renderer.draw(currentRotation);
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            this.isAnimating = false;
+                            resolve();
+                        }
+                    };
+
+                    animate();
+                });
+            }
+        }
+
+        // ========== Main Application ==========
+        class RouletteApp {
+            constructor() {
+                this.storage = new StorageManager();
+                this.departmentManager = new DepartmentManager(this.storage, () => this.updateUI());
+                this.lotteryEngine = new LotteryEngine(this.storage);
+
+                this.canvas = document.getElementById('rouletteCanvas');
+                this.renderer = new RouletteRenderer(
+                    this.canvas,
+                    this.departmentManager.getDepartments(),
+                    []
+                );
+                this.animation = new AnimationController(this.renderer);
+
+                this.initializeEventListeners();
+                this.updateUI();
+            }
+
+            initializeEventListeners() {
+                // スタートボタン
+                document.getElementById('startButton').addEventListener('click', () => {
+                    this.startLottery();
+                });
+
+                // 部門追加
+                document.getElementById('addButton').addEventListener('click', () => {
+                    this.addDepartment();
+                });
+
+                document.getElementById('departmentInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.addDepartment();
+                    }
+                });
+
+                // 履歴リセット
+                document.getElementById('resetHistoryButton').addEventListener('click', () => {
+                    if (confirm('抽選履歴をリセットしますか？')) {
+                        this.storage.resetHistory();
+                        this.updateUI();
+                    }
+                });
+
+                // 結果モーダルを閉じる
+                document.getElementById('closeResultButton').addEventListener('click', () => {
+                    document.getElementById('resultModal').classList.remove('show');
+                });
+
+                // ウィンドウリサイズ
+                window.addEventListener('resize', () => {
+                    this.renderer.setupCanvas();
+                    this.updateUI();
+                });
+            }
+
+            addDepartment() {
+                const input = document.getElementById('departmentInput');
+                const name = input.value;
+
+                if (this.departmentManager.addDepartment(name)) {
+                    input.value = '';
+                }
+            }
+
+            async startLottery() {
+                const departments = this.departmentManager.getDepartments();
+
+                if (departments.length === 0) {
+                    alert('部門を登録してください');
+                    return;
+                }
+
+                const eligible = this.lotteryEngine.getEligibleDepartments();
+
+                if (eligible.length === 0) {
+                    alert('抽選可能な部門がありません');
+                    return;
+                }
+
+                // ボタンを無効化
+                const startButton = document.getElementById('startButton');
+                startButton.disabled = true;
+                startButton.textContent = '回転中...';
+
+                // 抽選実行
+                const selected = this.lotteryEngine.performLottery();
+
+                // アニメーション
+                await this.animation.spin(selected, departments);
+
+                // 結果表示
+                document.getElementById('resultDepartment').textContent = selected;
+                document.getElementById('resultModal').classList.add('show');
+
+                // UI更新
+                this.updateUI();
+
+                // ボタンを有効化
+                startButton.disabled = false;
+                startButton.textContent = 'スタート';
+            }
+
+            updateUI() {
+                const departments = this.departmentManager.getDepartments();
+                const history = this.lotteryEngine.getHistory();
+                const eligible = this.lotteryEngine.getEligibleDepartments();
+                const excludedDepts = departments.filter(dept => !eligible.includes(dept));
+
+                // ルーレット更新
+                this.renderer.updateDepartments(departments, excludedDepts);
+
+                // 履歴表示更新
+                document.getElementById('lastResult').textContent = history[0] || '-';
+                document.getElementById('secondLastResult').textContent = history[1] || '-';
+
+                // 部門リスト更新
+                this.renderDepartmentsList(departments, excludedDepts);
+            }
+
+            renderDepartmentsList(departments, excludedDepts) {
+                const listContainer = document.getElementById('departmentsList');
+
+                if (departments.length === 0) {
+                    listContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <div>部門が登録されていません</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listContainer.innerHTML = departments.map(dept => {
+                    const isExcluded = excludedDepts.includes(dept);
+                    return `
+                        <div class="department-item ${isExcluded ? 'excluded' : ''}">
+                            <span class="department-name">${dept}</span>
+                            ${isExcluded ? '<span class="excluded-badge">除外中</span>' : ''}
+                            <button class="delete-button" onclick="app.departmentManager.deleteDepartment('${dept}')">削除</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // ========== Initialize Application ==========
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new RouletteApp();
+        });
+    </script>
+</body>
+</html>
