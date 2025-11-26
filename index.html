@@ -527,6 +527,202 @@
                 transform: scale(1);
             }
 
+```
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            border: 1px solid transparent;
+            transition: var(--transition-smooth);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .department-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--border-color);
+        }
+
+        .department-item.excluded {
+            opacity: 0.5;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .department-name {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .excluded-badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            border-radius: 6px;
+            margin-left: 10px;
+        }
+
+        .delete-button {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .delete-button:hover {
+            background: rgba(255, 107, 107, 0.3);
+            border-color: #FF6B6B;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            opacity: 0.3;
+        }
+
+        /* ========== Result Display ========== */
+        .result-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .result-section.show {
+            display: flex;
+        }
+
+        .result-content {
+            background: var(--surface-color);
+            backdrop-filter: blur(20px);
+            padding: 60px;
+            border-radius: 32px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 500px;
+            animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .result-department {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .close-result-btn {
+            padding: 16px 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .close-result-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* ========== Animations ========== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
             50% {
                 transform: scale(1.05);
             }
@@ -537,10 +733,7 @@
             .main-content {
                 grid-template-columns: 1fr;
             }
-
-            .management-section {
-                order: -1;
-            }
+            /* order: -1 を削除し、HTML順序通り（ルーレット→部門管理）に表示 */
         }
 
         @media (max-width: 768px) {
@@ -717,6 +910,49 @@
                 return true;
             }
 
+            editDepartment(oldName, newName) {
+                const trimmedName = newName.trim();
+
+                if (!trimmedName) {
+                    alert('部門名を入力してください');
+                    return false;
+                }
+
+                if (trimmedName.length > this.MAX_NAME_LENGTH) {
+                    alert(`部門名は${this.MAX_NAME_LENGTH}文字以内で入力してください`);
+                    return false;
+                }
+
+                const data = this.storage.loadData();
+                const lowerCaseName = trimmedName.toLowerCase();
+
+                // 同じ名前の場合は変更なし
+                if (oldName.toLowerCase() === lowerCaseName) {
+                    return true;
+                }
+
+                // 重複チェック
+                if (data.departments.some(dept => dept.toLowerCase() === lowerCaseName)) {
+                    alert('この部門名は既に登録されています');
+                    return false;
+                }
+
+                // 部門名を更新
+                const index = data.departments.indexOf(oldName);
+                if (index !== -1) {
+                    data.departments[index] = trimmedName;
+                    
+                    // 履歴も更新
+                    data.history = data.history.map(h => h === oldName ? trimmedName : h);
+                    
+                    this.storage.saveData(data);
+                    this.onUpdate();
+                    return true;
+                }
+
+                return false;
+            }
+
             deleteDepartment(name, callback) {
                 const data = this.storage.loadData();
 
@@ -888,9 +1124,49 @@
                     this.ctx.textAlign = 'center';
                     this.ctx.textBaseline = 'middle';
                     this.ctx.fillStyle = isExcluded ? '#888888' : '#ffffff';
-                    this.ctx.font = `${Math.min(600 / deptCount, 18)}px Inter, sans-serif`;
                     this.ctx.fontWeight = '600';
-                    this.ctx.fillText(dept, radius * 0.65, 0);
+
+                    // フォントサイズと改行の計算
+                    const maxRadius = radius * 0.85; // 外側の余白
+                    const minRadius = 50; // 中心円の半径 + 余白
+                    const availableWidth = maxRadius - minRadius;
+                    
+                    // 基本フォントサイズ
+                    let fontSize = Math.max(Math.min(600 / deptCount, 18), 12);
+                    this.ctx.font = `600 ${fontSize}px Inter, sans-serif`;
+
+                    // テキストの長さを測定
+                    let textWidth = this.ctx.measureText(dept).width;
+
+                    // 長すぎる場合はフォントサイズを小さくする
+                    if (textWidth > availableWidth) {
+                        // まずフォントサイズを縮小してみる（最小10pxまで）
+                        while (textWidth > availableWidth && fontSize > 10) {
+                            fontSize--;
+                            this.ctx.font = `600 ${fontSize}px Inter, sans-serif`;
+                            textWidth = this.ctx.measureText(dept).width;
+                        }
+                    }
+
+                    // それでも収まらない場合は改行する
+                    if (textWidth > availableWidth) {
+                        // 2行に分割
+                        const mid = Math.floor(dept.length / 2);
+                        const line1 = dept.substring(0, mid);
+                        const line2 = dept.substring(mid);
+                        
+                        // さらにフォントサイズ調整
+                        fontSize = Math.max(fontSize - 2, 10);
+                        this.ctx.font = `600 ${fontSize}px Inter, sans-serif`;
+                        
+                        const lineHeight = fontSize * 1.2;
+                        this.ctx.fillText(line1, radius * 0.65, -lineHeight / 2);
+                        this.ctx.fillText(line2, radius * 0.65, lineHeight / 2);
+                    } else {
+                        // 1行で描画
+                        this.ctx.fillText(dept, radius * 0.65, 0);
+                    }
+
                     this.ctx.restore();
                 });
             }
@@ -1102,13 +1378,18 @@
                 
                 itemEl.innerHTML = `
                     <input type="text" class="department-edit-input" id="edit-input-${index}" value="${currentName}" maxlength="50" />
-                    <button class="save-button" onclick="app.saveEditDepartment(${index}, '${currentName.replace(/'/g, "\\'")}')">保存</button>
+                    <button class="save-button" id="save-btn-${index}">保存</button>
                     <button class="cancel-button" onclick="app.cancelEditDepartment()">キャンセル</button>
                 `;
                 
                 const input = document.getElementById(`edit-input-${index}`);
                 input.focus();
                 input.select();
+                
+                // 保存ボタンのイベントリスナー設定
+                document.getElementById(`save-btn-${index}`).addEventListener('click', () => {
+                    this.saveEditDepartment(index, currentName);
+                });
                 
                 input.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
@@ -1144,3 +1425,4 @@
 </body>
 
 </html>
+```
