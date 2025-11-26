@@ -1081,16 +1081,57 @@
                     return;
                 }
 
-                listContainer.innerHTML = departments.map(dept => {
+                listContainer.innerHTML = departments.map((dept, index) => {
                     const isExcluded = excludedDepts.includes(dept);
+                    const escapedDept = dept.replace(/'/g, "\\'");
                     return `
-                        <div class="department-item ${isExcluded ? 'excluded' : ''}">
-                            <span class="department-name">${dept}</span>
+                        <div class="department-item ${isExcluded ? 'excluded' : ''}" id="dept-item-${index}">
+                            <span class="department-name" id="dept-name-${index}">${dept}</span>
                             ${isExcluded ? '<span class="excluded-badge">除外中</span>' : ''}
-                            <button class="delete-button" onclick="app.departmentManager.deleteDepartment('${dept}')">削除</button>
+                            <button class="edit-button" onclick="app.startEditDepartment(${index}, '${escapedDept}')">編集</button>
+                            <button class="delete-button" onclick="app.departmentManager.deleteDepartment('${escapedDept}')">削除</button>
                         </div>
                     `;
                 }).join('');
+            }
+
+            startEditDepartment(index, oldName) {
+                const itemEl = document.getElementById(`dept-item-${index}`);
+                
+                const currentName = oldName;
+                
+                itemEl.innerHTML = `
+                    <input type="text" class="department-edit-input" id="edit-input-${index}" value="${currentName}" maxlength="50" />
+                    <button class="save-button" onclick="app.saveEditDepartment(${index}, '${currentName.replace(/'/g, "\\'")}')">保存</button>
+                    <button class="cancel-button" onclick="app.cancelEditDepartment()">キャンセル</button>
+                `;
+                
+                const input = document.getElementById(`edit-input-${index}`);
+                input.focus();
+                input.select();
+                
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.saveEditDepartment(index, currentName);
+                    } else if (e.key === 'Escape') {
+                        this.cancelEditDepartment();
+                    }
+                });
+            }
+
+            saveEditDepartment(index, oldName) {
+                const input = document.getElementById(`edit-input-${index}`);
+                const newName = input.value;
+                
+                if (this.departmentManager.editDepartment(oldName, newName)) {
+                    this.updateUI();
+                } else {
+                    this.updateUI();
+                }
+            }
+
+            cancelEditDepartment() {
+                this.updateUI();
             }
         }
 
