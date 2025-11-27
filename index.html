@@ -648,6 +648,131 @@
         <div class="result-content">
             <div class="result-title">🎉 当選部門 🎉</div>
             <div class="result-department" id="resultDepartment"></div>
+            <button class="close-result-btn" id="closeResultButton">閉じる</button>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="result-section" id="deleteConfirmModal">
+        <div class="result-content">
+            <div class="result-title">⚠️ 確認</div>
+            <div class="result-department" id="deleteConfirmText" style="font-size: 1.5rem;"></div>
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button class="close-result-btn" id="confirmDeleteButton"
+                    style="flex: 1; background: linear-gradient(135deg, #FF6B6B 0%, #f5576c 100%);">削除</button>
+                <button class="close-result-btn" id="cancelDeleteButton"
+                    style="flex: 1; background: rgba(255, 255, 255, 0.1);">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Reset Confirmation Modal -->
+    <div class="result-section" id="historyResetModal">
+        <div class="result-content">
+            <div class="result-title">⚠️ 確認</div>
+            <div class="result-department" style="font-size: 1.5rem;">抽選履歴をリセットしますか？</div>
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button class="close-result-btn" id="confirmResetButton"
+                    style="flex: 1; background: linear-gradient(135deg, #FF6B6B 0%, #f5576c 100%);">リセット</button>
+                <button class="close-result-btn" id="cancelResetButton"
+                    style="flex: 1; background: rgba(255, 255, 255, 0.1);">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="errorToast" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #ff4757; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; font-weight: 600; transition: opacity 0.3s ease;"></div>
+
+    <script>
+        // ========== Storage Manager ==========
+        class StorageManager {
+            constructor(onError) {
+                this.STORAGE_KEY = 'rouletteData';
+                this.onError = onError;
+                this.useMemory = false;
+                this.memoryData = null;
+                
+                this.defaultData = {
+                    departments: ['営業部', '開発部', 'マーケティング部'],
+                    history: []
+                };
+
+                // 初期化時にlocalStorageのアクセス確認
+                try {
+                    localStorage.setItem('test', 'test');
+                    localStorage.removeItem('test');
+                } catch (e) {
+                    console.warn('LocalStorage is not available, falling back to memory storage:', e);
+                    this.useMemory = true;
+                    if (this.onError) this.onError('ブラウザの制限によりデータが保存できないため、一時的な保存モードで動作します。');
+                }
+            }
+
+            loadData() {
+                if (this.useMemory) {
+                    return this.memoryData ? JSON.parse(JSON.stringify(this.memoryData)) : JSON.parse(JSON.stringify(this.defaultData));
+                }
+
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    return data ? JSON.parse(data) : this.defaultData;
+                } catch (error) {
+                    console.error('データの読み込みに失敗しました:', error);
+                    this.useMemory = true;
+                    if (this.onError) this.onError('データの読み込みに失敗しました。一時保存モードに切り替えます。');
+                    return this.defaultData;
+                }
+            }
+
+            saveData(data) {
+                if (this.useMemory) {
+                    this.memoryData = JSON.parse(JSON.stringify(data));
+                    return;
+                }
+
+                try {
+                    const json = JSON.stringify(data);
+                    localStorage.setItem(this.STORAGE_KEY, json);
+                    
+                    // 書き込み検証（サイレント失敗対策）
+                    const saved = localStorage.getItem(this.STORAGE_KEY);
+                    if (saved !== json) {
+                        throw new Error('Verification failed: Saved data does not match input.');
+                    }
+                } catch (error) {
+                    console.warn('データの保存に失敗しました（検証エラー含む）:', error);
+                    this.useMemory = true;
+                    this.memoryData = JSON.parse(JSON.stringify(data));
+                    if (this.onError) this.onError('データの保存に失敗しました。一時保存モードに切り替えます。');
+                }
+            }
+
+            resetHistory() {
+                const data = this.loadData();
+                data.history = [];
+                this.saveData(data);
+            }
+
+            updateHistory(index, value) {
+                const data = this.loadData();
+                // 履歴配列が足りない場合は埋める
+                while (data.history.length <= index) {
+                    data.history.push(null);
+                }
+                
+                if (value) {
+                    data.history[index] = value;
+                } else {
+                    data.history[index] = null;
+                    data.history = data.history.filter(h => h !== null);
+                }
+                this.saveData(data);
+            }
+        }
+
+        // ========== Department Manager ==========
+        class DepartmentManager {
+            constructor(storageManager, onUpdate) {
                 this.storage = storageManager;
                 this.onUpdate = onUpdate;
                 this.MIN_DEPARTMENTS = 3;
