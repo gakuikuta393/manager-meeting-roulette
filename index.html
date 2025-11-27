@@ -666,6 +666,20 @@
         </div>
     </div>
 
+    <!-- History Reset Confirmation Modal -->
+    <div class="result-section" id="historyResetModal">
+        <div class="result-content">
+            <div class="result-title">⚠️ 確認</div>
+            <div class="result-department" style="font-size: 1.5rem;">抽選履歴をリセットしますか？</div>
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button class="close-result-btn" id="confirmResetButton"
+                    style="flex: 1; background: linear-gradient(135deg, #FF6B6B 0%, #f5576c 100%);">リセット</button>
+                <button class="close-result-btn" id="cancelResetButton"
+                    style="flex: 1; background: rgba(255, 255, 255, 0.1);">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ========== Storage Manager ==========
         class StorageManager {
@@ -1103,23 +1117,6 @@
                 });
 
                 document.getElementById('departmentInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        this.addDepartment();
-                    }
-                });
-
-                // 履歴リセット
-                document.getElementById('resetHistoryButton').addEventListener('click', () => {
-                    if (confirm('抽選履歴をリセットしますか？')) {
-                        this.storage.resetHistory();
-                        this.updateUI();
-                    }
-                });
-
-                // 履歴変更（前回）
-                document.getElementById('lastResultSelect').addEventListener('change', (e) => {
-                    this.storage.updateHistory(0, e.target.value);
-                    this.updateUI();
                 });
 
                 // 履歴変更（前々回）
