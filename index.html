@@ -741,32 +741,6 @@
 
                 // 重複チェック
                 if (data.departments.some(dept => dept.toLowerCase() === lowerCaseName)) {
-                    alert('この部門名は既に登録されています');
-                    return false;
-                }
-
-                // 部門名を更新
-                const index = data.departments.indexOf(oldName);
-                if (index !== -1) {
-                    data.departments[index] = trimmedName;
-                    
-                    // 履歴も更新
-                    data.history = data.history.map(h => h === oldName ? trimmedName : h);
-                    
-                    this.storage.saveData(data);
-                    this.onUpdate();
-                    return true;
-                }
-
-                return false;
-            }
-
-            deleteDepartment(name, callback) {
-                const data = this.storage.loadData();
-
-                if (data.departments.length <= this.MIN_DEPARTMENTS) {
-                    alert(`最低${this.MIN_DEPARTMENTS}つの部門が必要です`);
-                    if (callback) callback(false);
                     return;
                 }
 
