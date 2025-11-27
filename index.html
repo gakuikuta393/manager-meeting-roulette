@@ -648,39 +648,6 @@
         <div class="result-content">
             <div class="result-title">🎉 当選部門 🎉</div>
             <div class="result-department" id="resultDepartment"></div>
-            <button class="close-result-btn" id="closeResultButton">閉じる</button>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="result-section" id="deleteConfirmModal">
-        <div class="result-content">
-            <div class="result-title">⚠️ 確認</div>
-            <div class="result-department" id="deleteConfirmText" style="font-size: 1.5rem;"></div>
-            <div style="display: flex; gap: 15px; margin-top: 20px;">
-                <button class="close-result-btn" id="confirmDeleteButton"
-            <div style="display: flex; gap: 15px; margin-top: 20px;">
-                <button class="close-result-btn" id="confirmResetButton"
-                    style="flex: 1; background: linear-gradient(135deg, #FF6B6B 0%, #f5576c 100%);">リセット</button>
-                <button class="close-result-btn" id="cancelResetButton"
-                    style="flex: 1; background: rgba(255, 255, 255, 0.1);">キャンセル</button>
-                while (data.history.length <= index) {
-                    data.history.push(null);
-                }
-                
-                if (value) {
-                    data.history[index] = value;
-                } else {
-                    data.history[index] = null;
-                    data.history = data.history.filter(h => h !== null);
-                }
-                this.saveData(data);
-            }
-        }
-
-        // ========== Department Manager ==========
-        class DepartmentManager {
-            constructor(storageManager, onUpdate) {
                 this.storage = storageManager;
                 this.onUpdate = onUpdate;
                 this.MIN_DEPARTMENTS = 3;
