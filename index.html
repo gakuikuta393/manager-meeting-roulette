@@ -5,22 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>マネージャー会議ルーレット</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* ========== CSS Variables - Design System ========== */
+        /* ========== CSS Variables ========== */
         :root {
+            /* Colors */
+            --background-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --background-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            --surface-color: rgba(255, 255, 255, 0.05);
-            --surface-hover: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.7);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.2);
-            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-
-            /* Roulette Sector Colors */
+            
+            /* Roulette Colors */
             --color-1: #FF6B6B;
             --color-2: #4ECDC4;
             --color-3: #45B7D1;
@@ -33,6 +34,16 @@
             --color-10: #52B788;
             --color-11: #E63946;
             --color-12: #A8DADC;
+            
+            /* Spacing */
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            /* Transitions */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* ========== Global Styles ========== */
@@ -48,82 +59,71 @@
             color: var(--text-primary);
             min-height: 100vh;
             padding: 20px;
-            line-height: 1.6;
-        }
-
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        /* ========== Container ========== */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
         }
 
         /* ========== Header ========== */
-        .header {
+        header {
             text-align: center;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.6s ease-out;
+            margin-bottom: var(--spacing-xl);
         }
 
-        .header h1 {
+        h1 {
             font-size: 2.5rem;
             font-weight: 700;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
+            margin-bottom: var(--spacing-sm);
         }
 
-        .header p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
-
-        /* ========== Main Layout ========== */
-        .main-content {
+        /* ========== Layout ========== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
-            margin-bottom: 30px;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========== Glass Card ========== */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: var(--spacing-lg);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         /* ========== Roulette Section ========== */
         .roulette-section {
-            background: var(--surface-color);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 40px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-lg);
-            animation: fadeInLeft 0.6s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-lg);
         }
 
         .roulette-container {
             position: relative;
             width: 100%;
             max-width: 500px;
-            margin: 0 auto 30px;
-        }
-
-        .canvas-wrapper {
-            position: relative;
-            width: 100%;
-            padding-bottom: 100%;
+            aspect-ratio: 1;
         }
 
         #rouletteCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            box-shadow: 0 0 40px rgba(102, 126, 234, 0.4);
         }
 
-        .pointer {
+        .roulette-pointer {
             position: absolute;
             top: -10px;
             left: 50%;
@@ -132,8 +132,8 @@
             height: 0;
             border-left: 15px solid transparent;
             border-right: 15px solid transparent;
-            border-top: 30px solid #f5576c;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            border-top: 30px solid #ff4444;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
             z-index: 10;
         }
 
@@ -142,28 +142,22 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             background: var(--primary-gradient);
             border-radius: 50%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            z-index: 5;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
+            z-index: 5;
         }
 
-        .center-circle:hover:not(.disabled) {
-            transform: translate(-50%, -50%) scale(1.1);
-            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
-        }
-
-        .center-circle:active:not(.disabled) {
+        .center-circle:hover {
             transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
 
         .center-circle.disabled {
@@ -171,601 +165,461 @@
             cursor: not-allowed;
         }
 
+        .center-circle span {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* ========== History Section ========== */
         .history-section {
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
+            margin-top: var(--spacing-lg);
         }
 
-        .history-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
+        .history-section h3 {
+            margin-bottom: var(--spacing-md);
+            font-size: 1.2rem;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .history-item label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
             color: var(--text-secondary);
-        }
-
-        .history-items {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            transition: var(--transition-smooth);
-        }
-
-        .history-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            min-width: 70px;
-        }
-
-        .history-value {
-            font-weight: 600;
-            color: var(--text-primary);
-            flex: 1;
-        }
-
-        .history-select {
-            flex: 1;
-            padding: 8px 12px;
             font-size: 0.9rem;
+        }
+
+        select {
+            width: 100%;
+            padding: var(--spacing-sm);
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--glass-border);
             border-radius: 8px;
             color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
         }
 
-        .history-select:focus {
-            outline: none;
-            border-color: #667eea;
+        select:hover {
             background: rgba(255, 255, 255, 0.15);
         }
 
-        .history-select option {
-            background: #24243e;
+        select option {
+            background: #1a1a2e;
             color: var(--text-primary);
         }
 
-        .reset-history-btn {
-            margin-top: 15px;
-            width: 100%;
-            padding: 10px;
-            font-size: 0.9rem;
-            background: rgba(255, 107, 107, 0.2);
-            color: #FF6B6B;
-            border: 1px solid #FF6B6B;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
+        /* ========== Department Management ========== */
+        .department-section h2 {
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.5rem;
         }
 
-        .reset-history-btn:hover {
-            background: rgba(255, 107, 107, 0.3);
-        }
-
-        /* ========== Management Section ========== */
-        .management-section {
-            background: var(--surface-color);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 30px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-lg);
-            animation: fadeInRight 0.6s ease-out;
-        }
-
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: var(--text-primary);
-        }
-
-        .add-department-form {
-            margin-bottom: 30px;
-        }
-
-        .input-group {
+        .add-department {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
         }
 
-        #departmentInput {
+        input[type="text"] {
             flex: 1;
-            padding: 14px 18px;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
             color: var(--text-primary);
-            transition: var(--transition-smooth);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
         }
 
-        #departmentInput:focus {
+        input[type="text"]:focus {
             outline: none;
-            border-color: #667eea;
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
-        #departmentInput::placeholder {
+        input[type="text"]::placeholder {
             color: var(--text-secondary);
         }
 
-        .add-button {
-            padding: 14px 24px;
+        /* ========== Buttons ========== */
+        button {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
             font-size: 1rem;
             font-weight: 600;
-            background: var(--secondary-gradient);
-            color: white;
-            border: none;
-            border-radius: 12px;
             cursor: pointer;
-            transition: var(--transition-smooth);
-            white-space: nowrap;
+            transition: var(--transition);
         }
 
-        .add-button:hover {
+        button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
-        .add-button:active {
+        button:active {
             transform: translateY(0);
         }
 
-        .input-hint {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+        .reset-button {
+            width: 100%;
+            background: var(--secondary-gradient);
         }
 
+        .reset-button:hover {
+            box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+        }
+
+        /* ========== Department List ========== */
         .departments-list {
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .departments-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .departments-list::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-
-        .departments-list::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-
-        .departments-list::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
         }
 
         .department-item {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            margin-bottom: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            border: 1px solid transparent;
-            transition: var(--transition-smooth);
-            animation: fadeIn 0.3s ease-out;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            transition: var(--transition);
         }
 
         .department-item:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .department-item.excluded {
             opacity: 0.5;
-            background: rgba(255, 255, 255, 0.03);
         }
 
         .department-name {
-            font-weight: 500;
             flex: 1;
+            font-size: 1rem;
         }
 
         .excluded-badge {
+            padding: 4px 8px;
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid rgba(255, 68, 68, 0.4);
+            border-radius: 4px;
             font-size: 0.75rem;
-            padding: 4px 10px;
-            background: rgba(255, 107, 107, 0.2);
-            color: #FF6B6B;
-            border-radius: 6px;
-            margin-left: 10px;
+            color: #ff4444;
+        }
+
+        .edit-button,
+        .delete-button,
+        .save-button,
+        .cancel-button {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+        }
+
+        .edit-button {
+            background: rgba(102, 126, 234, 0.3);
         }
 
         .delete-button {
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            background: rgba(255, 107, 107, 0.2);
-            color: #FF6B6B;
-            border: 1px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
+            background: rgba(255, 68, 68, 0.3);
         }
 
-        .delete-button:hover {
-            background: rgba(255, 107, 107, 0.3);
-            border-color: #FF6B6B;
+        .save-button {
+            background: rgba(82, 183, 136, 0.3);
+        }
+
+        .cancel-button {
+            background: rgba(168, 218, 220, 0.3);
+        }
+
+        .department-edit-input {
+            flex: 1;
+            margin: 0;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: var(--spacing-xl);
             color: var(--text-secondary);
         }
 
         .empty-state-icon {
             font-size: 3rem;
-            margin-bottom: 10px;
-            opacity: 0.3;
+            margin-bottom: var(--spacing-md);
         }
 
-        /* ========== Result Display ========== */
-        .result-section {
+        /* ========== Modal ========== */
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-            display: none;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease-out;
         }
 
-        .result-section.show {
+        .modal.show {
             display: flex;
         }
 
-        .result-content {
-            background: var(--surface-color);
+        .modal-content {
+            background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            padding: 60px;
-            border-radius: 32px;
-            border: 2px solid var(--border-color);
-            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: var(--spacing-xl);
+            max-width: 400px;
+            width: 90%;
             text-align: center;
-            max-width: 500px;
-            animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        .result-title {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
+        .modal-content h2 {
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.8rem;
         }
 
         .result-department {
-            font-size: 3rem;
+            font-size: 2rem;
             font-weight: 700;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 30px;
-            animation: pulse 1s ease-in-out infinite;
+            margin: var(--spacing-lg) 0;
         }
 
-        .close-result-btn {
-            padding: 16px 40px;
-            font-size: 1rem;
-            font-weight: 600;
-            background: var(--primary-gradient);
+        .modal-buttons {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-lg);
+        }
+
+        .modal-buttons button {
+            flex: 1;
+        }
+
+        /* ========== Toast ========== */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: rgba(255, 68, 68, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
             color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+            opacity: 1;
+            transition: opacity 0.3s;
         }
 
-        .close-result-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        /* ========== Animations ========== */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
+        /* ========== Responsive ========== */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
             }
 
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes fadeInRight {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        /* ========== Responsive Design ========== */
-        @media (max-width: 1024px) {
-            .main-content {
+            .history-grid {
                 grid-template-columns: 1fr;
             }
-            /* order: -1 を削除し、HTML順序通り（ルーレット→部門管理）に表示 */
-        }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
+            .add-department {
+                flex-direction: column;
             }
 
-            .roulette-section,
-            .management-section {
-                padding: 20px;
-            }
-
-            .result-content {
-                padding: 40px 30px;
-                margin: 20px;
-            }
-
-            .result-department {
-                font-size: 2rem;
+            .add-department button {
+                width: 100%;
             }
         }
     </style>
 </head>
 
 <body>
+    <header>
+        <h1>🎯 マネージャー会議ルーレット</h1>
+    </header>
+
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>🎯 マネージャー会議ルーレット</h1>
-            <p>発表部門をランダムに決定します</p>
-        </header>
+        <!-- Roulette Section (Left/Top) -->
+        <div class="glass-card roulette-section">
+            <div class="roulette-container">
+                <div class="roulette-pointer"></div>
+                <canvas id="rouletteCanvas"></canvas>
+                <div class="center-circle" id="centerStartButton">
+                    <span>START</span>
+                </div>
+            </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Roulette Section -->
-            <section class="roulette-section">
-                <div class="roulette-container">
-                    <div class="canvas-wrapper">
-                        <div class="pointer"></div>
-                        <canvas id="rouletteCanvas"></canvas>
-                        <div class="center-circle" id="centerStartButton">START</div>
+            <div class="history-section">
+                <h3>📊 抽選履歴</h3>
+                <div class="history-grid">
+                    <div class="history-item">
+                        <label>前回</label>
+                        <select id="lastResultSelect"></select>
+                    </div>
+                    <div class="history-item">
+                        <label>前々回</label>
+                        <select id="secondLastResultSelect"></select>
                     </div>
                 </div>
+                <button class="reset-button" id="resetHistoryButton">履歴をリセット</button>
+            </div>
+        </div>
 
-                <div class="history-section">
-                    <h3 class="history-title">抽選履歴</h3>
-                    <div class="history-items" id="historyDisplay">
-                        <div class="history-item">
-                            <span class="history-label">前回：</span>
-                            <select class="history-select" id="lastResultSelect">
-                                <option value="">なし</option>
-                            </select>
-                        </div>
-                        <div class="history-item">
-                            <span class="history-label">前々回：</span>
-                            <select class="history-select" id="secondLastResultSelect">
-                                <option value="">なし</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="reset-history-btn" id="resetHistoryButton">履歴をリセット</button>
-                </div>
-            </section>
+        <!-- Department Management Section (Right/Bottom) -->
+        <div class="glass-card department-section">
+            <h2>📋 部門管理</h2>
+            
+            <div class="add-department">
+                <input type="text" id="departmentInput" placeholder="部門名を入力" maxlength="50">
+                <button id="addButton">追加</button>
+            </div>
 
-            <!-- Management Section -->
-            <section class="management-section">
-                <h2 class="section-title">部門管理</h2>
-
-                <div class="add-department-form">
-                    <div class="input-group">
-                        <input type="text" id="departmentInput" placeholder="部門名を入力" maxlength="50" />
-                        <button class="add-button" id="addButton">追加</button>
-                    </div>
-                    <div class="input-hint">最大50文字まで入力できます</div>
-                </div>
-
-                <div class="departments-list" id="departmentsList"></div>
-            </section>
+            <div class="departments-list" id="departmentsList"></div>
         </div>
     </div>
 
     <!-- Result Modal -->
-    <div class="result-section" id="resultModal">
-        <div class="result-content">
-            <div class="result-title">🎉 当選部門 🎉</div>
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2>🎉 抽選結果</h2>
             <div class="result-department" id="resultDepartment"></div>
-            <button class="close-result-btn" id="closeResultButton">閉じる</button>
+            <button id="closeResultButton">閉じる</button>
         </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div class="result-section" id="deleteConfirmModal">
-        <div class="result-content">
-            <div class="result-title">⚠️ 確認</div>
-            <div class="result-department" id="deleteConfirmText" style="font-size: 1.5rem;"></div>
-            <div style="display: flex; gap: 15px; margin-top: 20px;">
-                <button class="close-result-btn" id="confirmDeleteButton"
-                    style="flex: 1; background: linear-gradient(135deg, #FF6B6B 0%, #f5576c 100%);">削除</button>
-                <button class="close-result-btn" id="cancelDeleteButton"
-                    style="flex: 1; background: rgba(255, 255, 255, 0.1);">キャンセル</button>
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2>⚠️ 確認</h2>
+            <p id="deleteMessage"></p>
+            <div class="modal-buttons">
+                <button id="confirmDeleteButton">削除</button>
+                <button id="cancelDeleteButton" class="cancel-button">キャンセル</button>
             </div>
         </div>
     </div>
 
     <!-- History Reset Confirmation Modal -->
-    <div class="result-section" id="historyResetModal">
-        <div class="result-content">
-            <div class="result-title">⚠️ 確認</div>
-            <div class="result-department" style="font-size: 1.5rem;">抽選履歴をリセットしますか？</div>
-            <div style="display: flex; gap: 15px; margin-top: 20px;">
-                <button class="close-result-btn" id="confirmResetButton"
-                    style="flex: 1; background: linear-gradient(135deg, #FF6B6B 0%, #f5576c 100%);">リセット</button>
-                <button class="close-result-btn" id="cancelResetButton"
-                    style="flex: 1; background: rgba(255, 255, 255, 0.1);">キャンセル</button>
+    <div class="modal" id="historyResetModal">
+        <div class="modal-content">
+            <h2>⚠️ 確認</h2>
+            <p>抽選履歴をリセットしますか?</p>
+            <div class="modal-buttons">
+                <button id="confirmResetButton">リセット</button>
+                <button id="cancelResetButton" class="cancel-button">キャンセル</button>
             </div>
         </div>
     </div>
 
     <!-- Error Toast -->
-    <div id="errorToast" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #ff4757; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; font-weight: 600; transition: opacity 0.3s ease;"></div>
+    <div class="toast" id="errorToast"></div>
 
     <script>
         // ========== Storage Manager ==========
         class StorageManager {
             constructor(onError) {
-                this.STORAGE_KEY = 'rouletteData';
+                this.STORAGE_KEY = 'roulette_data';
                 this.onError = onError;
                 this.useMemory = false;
                 this.memoryData = null;
                 
-                this.defaultData = {
-                    departments: ['営業部', '開発部', 'マーケティング部'],
-                    history: []
-                };
-
-                // 初期化時にlocalStorageのアクセス確認
+                // Check localStorage availability
                 try {
-                    localStorage.setItem('test', 'test');
-                    localStorage.removeItem('test');
+                    const test = '__storage_test__';
+                    localStorage.setItem(test, test);
+                    localStorage.removeItem(test);
                 } catch (e) {
-                    console.warn('LocalStorage is not available, falling back to memory storage:', e);
                     this.useMemory = true;
-                    if (this.onError) this.onError('ブラウザの制限によりデータが保存できないため、一時的な保存モードで動作します。');
+                    this.onError('localStorageが使用できません。データは一時保存されます。');
                 }
             }
 
             loadData() {
-                if (this.useMemory) {
-                    return this.memoryData ? JSON.parse(JSON.stringify(this.memoryData)) : JSON.parse(JSON.stringify(this.defaultData));
-                }
-
                 try {
+                    if (this.useMemory) {
+                        if (!this.memoryData) {
+                            this.memoryData = this.getDefaultData();
+                        }
+                        return JSON.parse(JSON.stringify(this.memoryData));
+                    }
+
                     const data = localStorage.getItem(this.STORAGE_KEY);
-                    return data ? JSON.parse(data) : this.defaultData;
-                } catch (error) {
-                    console.error('データの読み込みに失敗しました:', error);
-                    this.useMemory = true;
-                    if (this.onError) this.onError('データの読み込みに失敗しました。一時保存モードに切り替えます。');
-                    return this.defaultData;
+                    if (!data) {
+                        return this.getDefaultData();
+                    }
+                    return JSON.parse(data);
+                } catch (e) {
+                    this.onError('データの読み込みに失敗しました');
+                    return this.getDefaultData();
                 }
             }
 
             saveData(data) {
-                if (this.useMemory) {
-                    this.memoryData = JSON.parse(JSON.stringify(data));
-                    return;
-                }
-
                 try {
-                    const json = JSON.stringify(data);
-                    localStorage.setItem(this.STORAGE_KEY, json);
-                    
-                    // 書き込み検証（サイレント失敗対策）
-                    const saved = localStorage.getItem(this.STORAGE_KEY);
-                    if (saved !== json) {
-                        throw new Error('Verification failed: Saved data does not match input.');
+                    if (this.useMemory) {
+                        this.memoryData = JSON.parse(JSON.stringify(data));
+                        return true;
                     }
-                } catch (error) {
-                    console.warn('データの保存に失敗しました（検証エラー含む）:', error);
-                    this.useMemory = true;
-                    this.memoryData = JSON.parse(JSON.stringify(data));
-                    if (this.onError) this.onError('データの保存に失敗しました。一時保存モードに切り替えます。');
+
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                    
+                    // Verify write
+                    const saved = localStorage.getItem(this.STORAGE_KEY);
+                    if (!saved) {
+                        throw new Error('Write verification failed');
+                    }
+                    return true;
+                } catch (e) {
+                    this.onError('データの保存に失敗しました');
+                    return false;
                 }
+            }
+
+            getDefaultData() {
+                return {
+                    departments: ['営業部', '開発部', 'マーケティング部'],
+                    history: []
+                };
+            }
+
+            updateHistory(index, value) {
+                const data = this.loadData();
+                if (value === '') {
+                    data.history.splice(index, 1);
+                } else {
+                    data.history[index] = value;
+                }
+                this.saveData(data);
             }
 
             resetHistory() {
                 const data = this.loadData();
                 data.history = [];
-                this.saveData(data);
-            }
-
-            updateHistory(index, value) {
-                const data = this.loadData();
-                // 履歴配列が足りない場合は埋める
-                while (data.history.length <= index) {
-                    data.history.push(null);
-                }
-                
-                if (value) {
-                    data.history[index] = value;
-                } else {
-                    data.history[index] = null;
-                    data.history = data.history.filter(h => h !== null);
-                }
                 this.saveData(data);
             }
         }
@@ -785,7 +639,7 @@
 
             addDepartment(name) {
                 const trimmedName = name.trim();
-
+                
                 if (!trimmedName) {
                     alert('部門名を入力してください');
                     return false;
@@ -797,10 +651,10 @@
                 }
 
                 const data = this.storage.loadData();
-                const lowerCaseName = trimmedName.toLowerCase();
-
-                if (data.departments.some(dept => dept.toLowerCase() === lowerCaseName)) {
-                    alert('この部門名は既に登録されています');
+                
+                // Check duplicates (case-insensitive)
+                if (data.departments.some(dept => dept.toLowerCase() === trimmedName.toLowerCase())) {
+                    alert('同じ名前の部門が既に存在します');
                     return false;
                 }
 
@@ -812,7 +666,7 @@
 
             editDepartment(oldName, newName) {
                 const trimmedName = newName.trim();
-
+                
                 if (!trimmedName) {
                     alert('部門名を入力してください');
                     return false;
@@ -824,48 +678,63 @@
                 }
 
                 const data = this.storage.loadData();
-                const lowerCaseName = trimmedName.toLowerCase();
-
-                // 同じ名前の場合は変更なし
-                if (oldName.toLowerCase() === lowerCaseName) {
-                    return true;
+                
+                // Check duplicates (excluding current)
+                if (trimmedName.toLowerCase() !== oldName.toLowerCase() &&
+                    data.departments.some(dept => dept.toLowerCase() === trimmedName.toLowerCase())) {
+                    alert('同じ名前の部門が既に存在します');
+                    return false;
                 }
 
-                // 重複チェック
-                if (data.departments.some(dept => dept.toLowerCase() === lowerCaseName)) {
+                const index = data.departments.indexOf(oldName);
+                if (index !== -1) {
+                    data.departments[index] = trimmedName;
+                    
+                    // Update history
+                    data.history = data.history.map(h => h === oldName ? trimmedName : h);
+                    
+                    this.storage.saveData(data);
+                    this.onUpdate();
+                    return true;
+                }
+                return false;
+            }
+
+            deleteDepartment(name, onConfirm) {
+                const data = this.storage.loadData();
+                
+                if (data.departments.length <= this.MIN_DEPARTMENTS) {
+                    alert(`部門は最低${this.MIN_DEPARTMENTS}つ必要です`);
                     return;
                 }
 
-                // カスタム確認モーダルを表示
-                this.showDeleteConfirmation(name, (confirmed) => {
-                    if (confirmed) {
-                        data.departments = data.departments.filter(dept => dept !== name);
-                        this.storage.saveData(data);
-                        this.onUpdate();
-                    }
-                    if (callback) callback(confirmed);
-                });
-            }
+                // Show custom confirmation modal
+                const modal = document.getElementById('deleteModal');
+                const message = document.getElementById('deleteMessage');
+                message.textContent = `「${name}」を削除しますか?`;
+                modal.classList.add('show');
 
-            showDeleteConfirmation(name, callback) {
-                const modal = document.getElementById('deleteConfirmModal');
-                const text = document.getElementById('deleteConfirmText');
                 const confirmBtn = document.getElementById('confirmDeleteButton');
                 const cancelBtn = document.getElementById('cancelDeleteButton');
 
-                text.textContent = `「${name}」を削除しますか?`;
-                modal.classList.add('show');
-
                 const handleConfirm = () => {
+                    const index = data.departments.indexOf(name);
+                    if (index !== -1) {
+                        data.departments.splice(index, 1);
+                        
+                        // Remove from history
+                        data.history = data.history.filter(h => h !== name);
+                        
+                        this.storage.saveData(data);
+                        this.onUpdate();
+                    }
                     modal.classList.remove('show');
                     cleanup();
-                    callback(true);
                 };
 
                 const handleCancel = () => {
                     modal.classList.remove('show');
                     cleanup();
-                    callback(false);
                 };
 
                 const cleanup = () => {
@@ -888,18 +757,18 @@
                 const data = this.storage.loadData();
                 const { departments, history } = data;
 
-                // 除外リスト（前回・前々回）
+                // Exclude last 2 results
                 const excludedDepts = history.slice(0, 2);
 
-                // 抽選対象を決定
+                // Get eligible departments
                 let eligible = departments.filter(dept => !excludedDepts.includes(dept));
 
-                // 抽選対象が3未満の場合、最も古い履歴から除外解除
+                // If less than 3 eligible, exclude only the last one
                 if (eligible.length < 3 && history.length > 0) {
                     eligible = departments.filter(dept => dept !== history[0]);
                 }
 
-                // それでも対象が少ない場合は全部門を対象に
+                // If still no eligible, use all
                 if (eligible.length === 0) {
                     eligible = [...departments];
                 }
@@ -914,14 +783,14 @@
                     return null;
                 }
 
-                // ランダム選択
+                // Random selection
                 const randomIndex = Math.floor(Math.random() * eligible.length);
                 const selected = eligible[randomIndex];
 
-                // 履歴を更新
+                // Update history
                 const data = this.storage.loadData();
                 data.history.unshift(selected);
-                data.history = data.history.slice(0, 2); // 最新2件のみ保持
+                data.history = data.history.slice(0, 2); // Keep only last 2
                 this.storage.saveData(data);
 
                 return selected;
@@ -1000,21 +869,18 @@
                     this.ctx.fillStyle = isExcluded ? '#888888' : '#ffffff';
                     this.ctx.fontWeight = '600';
 
-                    // フォントサイズと改行の計算
-                    const maxRadius = radius * 0.85; // 外側の余白
-                    const minRadius = 50; // 中心円の半径 + 余白
+                    // Dynamic font size
+                    const maxRadius = radius * 0.85;
+                    const minRadius = 50;
                     const availableWidth = maxRadius - minRadius;
                     
-                    // 基本フォントサイズ
                     let fontSize = Math.max(Math.min(600 / deptCount, 18), 12);
                     this.ctx.font = `600 ${fontSize}px Inter, sans-serif`;
 
-                    // テキストの長さを測定
                     let textWidth = this.ctx.measureText(dept).width;
 
-                    // 長すぎる場合はフォントサイズを小さくする
+                    // Shrink font if too wide
                     if (textWidth > availableWidth) {
-                        // まずフォントサイズを縮小してみる（最小10pxまで）
                         while (textWidth > availableWidth && fontSize > 10) {
                             fontSize--;
                             this.ctx.font = `600 ${fontSize}px Inter, sans-serif`;
@@ -1022,14 +888,12 @@
                         }
                     }
 
-                    // それでも収まらない場合は改行する
+                    // Wrap text if still too wide
                     if (textWidth > availableWidth) {
-                        // 2行に分割
                         const mid = Math.floor(dept.length / 2);
                         const line1 = dept.substring(0, mid);
                         const line2 = dept.substring(mid);
                         
-                        // さらにフォントサイズ調整
                         fontSize = Math.max(fontSize - 2, 10);
                         this.ctx.font = `600 ${fontSize}px Inter, sans-serif`;
                         
@@ -1037,7 +901,6 @@
                         this.ctx.fillText(line1, radius * 0.65, -lineHeight / 2);
                         this.ctx.fillText(line2, radius * 0.65, lineHeight / 2);
                     } else {
-                        // 1行で描画
                         this.ctx.fillText(dept, radius * 0.65, 0);
                     }
 
@@ -1066,12 +929,12 @@
                 const targetIndex = allDepartments.indexOf(targetDepartment);
                 const anglePerDept = (2 * Math.PI) / allDepartments.length;
 
-                // ポインター位置（上部中央）に部門の中心が来るように調整
+                // Calculate target angle
                 const targetAngle = targetIndex * anglePerDept + anglePerDept / 2;
-                const baseRotation = Math.PI * 2 * 5; // 5回転
+                const baseRotation = Math.PI * 2 * 5; // 5 rotations
                 const finalRotation = baseRotation + (2 * Math.PI - targetAngle);
 
-                const duration = 4000; // 4秒
+                const duration = 4000; // 4 seconds
                 const startTime = Date.now();
 
                 return new Promise((resolve) => {
@@ -1079,7 +942,7 @@
                         const elapsed = Date.now() - startTime;
                         const progress = Math.min(elapsed / duration, 1);
 
-                        // イージング関数（cubic-bezier）
+                        // Easing function
                         const easeOut = 1 - Math.pow(1 - progress, 3);
                         const currentRotation = finalRotation * easeOut;
 
@@ -1093,28 +956,94 @@
                         }
                     };
 
+                    animate();
+                });
+            }
+        }
+
+        // ========== Roulette App ==========
+        class RouletteApp {
+            constructor() {
+                this.showError = this.showError.bind(this);
+                this.storage = new StorageManager(this.showError);
+                this.departmentManager = new DepartmentManager(this.storage, () => this.updateUI());
+                this.lotteryEngine = new LotteryEngine(this.storage);
+                
+                const canvas = document.getElementById('rouletteCanvas');
+                const departments = this.departmentManager.getDepartments();
+                const eligible = this.lotteryEngine.getEligibleDepartments();
+                const excludedDepts = departments.filter(dept => !eligible.includes(dept));
+                
+                this.renderer = new RouletteRenderer(canvas, departments, excludedDepts);
+                this.animation = new AnimationController(this.renderer);
+                
+                this.setupEventListeners();
+                this.updateUI();
+            }
+
+            showError(message) {
+                const toast = document.getElementById('errorToast');
+                toast.textContent = message;
+                toast.style.display = 'block';
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                        toast.style.opacity = '1';
+                    }, 300);
+                }, 3000);
+            }
+
+            setupEventListeners() {
+                // Start lottery
+                document.getElementById('centerStartButton').addEventListener('click', () => {
+                    this.startLottery();
                 });
 
-                // 部門追加
+                // Add department
                 document.getElementById('addButton').addEventListener('click', () => {
                     this.addDepartment();
                 });
 
                 document.getElementById('departmentInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.addDepartment();
+                    }
                 });
 
-                // 履歴変更（前々回）
+                // History change
+                document.getElementById('lastResultSelect').addEventListener('change', (e) => {
+                    this.storage.updateHistory(0, e.target.value);
+                    this.updateUI();
+                });
+
                 document.getElementById('secondLastResultSelect').addEventListener('change', (e) => {
                     this.storage.updateHistory(1, e.target.value);
                     this.updateUI();
                 });
 
-                // 結果モーダルを閉じる
+                // History reset
+                document.getElementById('resetHistoryButton').addEventListener('click', () => {
+                    const modal = document.getElementById('historyResetModal');
+                    modal.classList.add('show');
+                });
+
+                document.getElementById('confirmResetButton').addEventListener('click', () => {
+                    this.storage.resetHistory();
+                    this.updateUI();
+                    document.getElementById('historyResetModal').classList.remove('show');
+                });
+
+                document.getElementById('cancelResetButton').addEventListener('click', () => {
+                    document.getElementById('historyResetModal').classList.remove('show');
+                });
+
+                // Close result modal
                 document.getElementById('closeResultButton').addEventListener('click', () => {
                     document.getElementById('resultModal').classList.remove('show');
                 });
 
-                // ウィンドウリサイズ
+                // Window resize
                 window.addEventListener('resize', () => {
                     this.renderer.setupCanvas();
                     this.updateUI();
@@ -1145,27 +1074,27 @@
                     return;
                 }
 
-                // ボタンを無効化
+                // Disable button
                 const centerButton = document.getElementById('centerStartButton');
                 centerButton.classList.add('disabled');
-                centerButton.textContent = '回転中...';
+                centerButton.querySelector('span').textContent = '回転中...';
 
-                // 抽選実行
+                // Perform lottery
                 const selected = this.lotteryEngine.performLottery();
 
-                // アニメーション
+                // Animate
                 await this.animation.spin(selected, departments);
 
-                // 結果表示
+                // Show result
                 document.getElementById('resultDepartment').textContent = selected;
                 document.getElementById('resultModal').classList.add('show');
 
-                // UI更新
+                // Update UI
                 this.updateUI();
 
-                // ボタンを有効化
+                // Enable button
                 centerButton.classList.remove('disabled');
-                centerButton.textContent = 'START';
+                centerButton.querySelector('span').textContent = 'START';
             }
 
             updateUI() {
@@ -1174,13 +1103,13 @@
                 const eligible = this.lotteryEngine.getEligibleDepartments();
                 const excludedDepts = departments.filter(dept => !eligible.includes(dept));
 
-                // ルーレット更新
+                // Update roulette
                 this.renderer.updateDepartments(departments, excludedDepts);
 
-                // 履歴表示更新
+                // Update history selects
                 this.updateHistorySelects(departments, history);
 
-                // 部門リスト更新
+                // Update departments list
                 this.renderDepartmentsList(departments, excludedDepts);
             }
 
@@ -1200,7 +1129,6 @@
                 lastSelect.innerHTML = createOptions(history[0]);
                 secondLastSelect.innerHTML = createOptions(history[1]);
                 
-                // 明示的に値を設定（ブラウザの表示状態を確実に更新）
                 lastSelect.value = history[0] || '';
                 secondLastSelect.value = history[1] || '';
             }
@@ -1235,53 +1163,34 @@
             startEditDepartment(index, oldName) {
                 const itemEl = document.getElementById(`dept-item-${index}`);
                 
-                const currentName = oldName;
-                
                 itemEl.innerHTML = `
-                    <input type="text" class="department-edit-input" id="edit-input-${index}" value="${currentName}" maxlength="50" />
+                    <input type="text" class="department-edit-input" id="edit-input-${index}" value="${oldName}" maxlength="50" />
                     <button class="save-button" id="save-btn-${index}">保存</button>
-                    <button class="cancel-button" onclick="app.cancelEditDepartment()">キャンセル</button>
+                    <button class="cancel-button" onclick="app.updateUI()">キャンセル</button>
                 `;
                 
                 const input = document.getElementById(`edit-input-${index}`);
                 input.focus();
                 input.select();
                 
-                // 保存ボタンのイベントリスナー設定
                 document.getElementById(`save-btn-${index}`).addEventListener('click', () => {
-                    this.saveEditDepartment(index, currentName);
+                    const newName = input.value;
+                    this.departmentManager.editDepartment(oldName, newName);
                 });
                 
                 input.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
-                        this.saveEditDepartment(index, currentName);
+                        const newName = input.value;
+                        this.departmentManager.editDepartment(oldName, newName);
                     } else if (e.key === 'Escape') {
-                        this.cancelEditDepartment();
+                        this.updateUI();
                     }
                 });
-            }
-
-            saveEditDepartment(index, oldName) {
-                const input = document.getElementById(`edit-input-${index}`);
-                const newName = input.value;
-                
-                if (this.departmentManager.editDepartment(oldName, newName)) {
-                    this.updateUI();
-                } else {
-                    this.updateUI();
-                }
-            }
-
-            cancelEditDepartment() {
-                this.updateUI();
             }
         }
 
         // ========== Initialize Application ==========
-        let app;
-        window.addEventListener('DOMContentLoaded', () => {
-            app = new RouletteApp();
-        });
+        window.app = new RouletteApp();
     </script>
 </body>
 
