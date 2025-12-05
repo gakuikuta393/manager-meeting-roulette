@@ -443,7 +443,11 @@
                 font-size: 2rem;
             }
 
-            .history-grid {
+            .control-panel {
+                flex-direction: column;
+            }
+
+            .history-grid, .exclusion-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -454,6 +458,53 @@
             .add-department button {
                 width: 100%;
             }
+        }
+
+        /* ========== Control Panel (History & Exclusion) ========== */
+        .control-panel {
+            display: flex;
+            gap: var(--spacing-md);
+            width: 100%;
+            margin-top: var(--spacing-lg);
+        }
+
+        .history-section, .exclusion-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: var(--spacing-md);
+        }
+
+        .history-section h3, .exclusion-section h3 {
+            margin-bottom: var(--spacing-md);
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .history-grid, .exclusion-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .history-item, .exclusion-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .history-item label, .exclusion-item label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .reset-button {
+            margin-top: var(--spacing-md);
+            width: 100%;
+            background: var(--secondary-gradient);
+            padding: 8px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -474,19 +525,39 @@
                 </div>
             </div>
 
-            <div class="history-section">
-                <h3>📊 抽選履歴</h3>
-                <div class="history-grid">
-                    <div class="history-item">
-                        <label>前回</label>
-                        <select id="lastResultSelect"></select>
+            <div class="control-panel">
+                <div class="history-section">
+                    <h3>📊 抽選履歴</h3>
+                    <div class="history-grid">
+                        <div class="history-item">
+                            <label>前回</label>
+                            <select id="lastResultSelect"></select>
+                        </div>
+                        <div class="history-item">
+                            <label>前々回</label>
+                            <select id="secondLastResultSelect"></select>
+                        </div>
                     </div>
-                    <div class="history-item">
-                        <label>前々回</label>
-                        <select id="secondLastResultSelect"></select>
+                    <button class="reset-button" id="resetHistoryButton">履歴をリセット</button>
+                </div>
+
+                <div class="exclusion-section">
+                    <h3>🚫 除外設定</h3>
+                    <div class="exclusion-grid">
+                        <div class="exclusion-item">
+                            <label>除外 1</label>
+                            <select id="exclusionSelect1"></select>
+                        </div>
+                        <div class="exclusion-item">
+                            <label>除外 2</label>
+                            <select id="exclusionSelect2"></select>
+                        </div>
+                        <div class="exclusion-item">
+                            <label>除外 3</label>
+                            <select id="exclusionSelect3"></select>
+                        </div>
                     </div>
                 </div>
-                <button class="reset-button" id="resetHistoryButton">履歴をリセット</button>
             </div>
         </div>
 
@@ -603,7 +674,8 @@
             getDefaultData() {
                 return {
                     departments: ['営業部', '開発部', 'マーケティング部'],
-                    history: []
+                    history: [],
+                    exclusions: [null, null, null]
                 };
             }
 
@@ -615,6 +687,18 @@
                     data.history[index] = value;
                 }
                 this.saveData(data);
+            }
+
+            updateExclusion(index, value) {
+                const data = this.loadData();
+                data.exclusions = data.exclusions || [null, null, null];
+                data.exclusions[index] = value || null;
+                this.saveData(data);
+            }
+
+            getExclusions() {
+                const data = this.loadData();
+                return data.exclusions || [null, null, null];
             }
 
             resetHistory() {
@@ -756,22 +840,20 @@
             getEligibleDepartments() {
                 const data = this.storage.loadData();
                 const { departments, history } = data;
+                const exclusions = data.exclusions || [];
 
-                // Exclude last 2 results
-                const excludedDepts = history.slice(0, 2);
+                // 1. Filter out manual exclusions
+                let eligible = departments.filter(dept => !exclusions.includes(dept));
 
-                // Get eligible departments
-                let eligible = departments.filter(dept => !excludedDepts.includes(dept));
+                // 2. Filter out history (last 2 results)
+                // Note: Only filter history if we still have enough departments?
+                // For now, strictly follow rules: exclude history from the remaining eligible list.
+                const historyToExclude = history.slice(0, 2);
+                eligible = eligible.filter(dept => !historyToExclude.includes(dept));
 
-                // If less than 3 eligible, exclude only the last one
-                if (eligible.length < 3 && history.length > 0) {
-                    eligible = departments.filter(dept => dept !== history[0]);
-                }
-
-                // If still no eligible, use all
-                if (eligible.length === 0) {
-                    eligible = [...departments];
-                }
+                // If less than 1 eligible, what to do?
+                // The requirement is to exclude them. If all are excluded, we can't spin.
+                // We will return empty list and handle it in UI (alert).
 
                 return eligible;
             }
@@ -971,12 +1053,8 @@
                 
                 const canvas = document.getElementById('rouletteCanvas');
                 const departments = this.departmentManager.getDepartments();
-                const eligible = this.lotteryEngine.getEligibleDepartments();
-                const excludedDepts = departments.filter(dept => !eligible.includes(dept));
                 
-                this.renderer = new RouletteRenderer(canvas, departments, excludedDepts);
-                this.animation = new AnimationController(this.renderer);
-                
+                // Initial draw
                 this.setupEventListeners();
                 this.updateUI();
             }
@@ -1022,6 +1100,14 @@
                     this.updateUI();
                 });
 
+                // Exclusion change
+                [0, 1, 2].forEach(index => {
+                    document.getElementById(`exclusionSelect${index + 1}`).addEventListener('change', (e) => {
+                        this.storage.updateExclusion(index, e.target.value);
+                        this.updateUI();
+                    });
+                });
+
                 // History reset
                 document.getElementById('resetHistoryButton').addEventListener('click', () => {
                     const modal = document.getElementById('historyResetModal');
@@ -1061,13 +1147,14 @@
 
             async startLottery() {
                 const departments = this.departmentManager.getDepartments();
+                const eligible = this.lotteryEngine.getEligibleDepartments();
 
                 if (departments.length === 0) {
                     alert('部門を登録してください');
                     return;
                 }
 
-                const eligible = this.lotteryEngine.getEligibleDepartments();
+
 
                 if (eligible.length === 0) {
                     alert('抽選可能な部門がありません');
@@ -1100,17 +1187,39 @@
             updateUI() {
                 const departments = this.departmentManager.getDepartments();
                 const history = this.lotteryEngine.getHistory();
+                const exclusions = this.storage.getExclusions();
+                
+                // Calculate effective departments for the wheel
+                // We want to remove manually excluded departments from the wheel
+                const effectiveDepartments = departments.filter(dept => !exclusions.includes(dept));
+                
+                // Calculate eligible for winning (also excludes history)
                 const eligible = this.lotteryEngine.getEligibleDepartments();
-                const excludedDepts = departments.filter(dept => !eligible.includes(dept));
+                
+                // Excluded from winning but still on wheel (History items)
+                // effectiveDepartments contains everything NOT manually excluded.
+                // We want to gray out history items if they are on the wheel.
+                const grayedOutDepts = effectiveDepartments.filter(dept => !eligible.includes(dept));
 
-                // Update roulette
-                this.renderer.updateDepartments(departments, excludedDepts);
+                // Initialize renderer if needed
+                const canvas = document.getElementById('rouletteCanvas');
+                if (!this.renderer) {
+                    this.renderer = new RouletteRenderer(canvas, effectiveDepartments, grayedOutDepts);
+                    this.animation = new AnimationController(this.renderer);
+                } else {
+                    this.renderer.updateDepartments(effectiveDepartments, grayedOutDepts);
+                }
 
                 // Update history selects
                 this.updateHistorySelects(departments, history);
+                
+                // Update exclusion selects
+                this.updateExclusionSelects(departments, exclusions);
 
                 // Update departments list
-                this.renderDepartmentsList(departments, excludedDepts);
+                // For the list, we show ALL departments, but mark them if excluded
+                const allExcluded = departments.filter(dept => !eligible.includes(dept));
+                this.renderDepartmentsList(departments, allExcluded);
             }
 
             updateHistorySelects(departments, history) {
@@ -1131,6 +1240,22 @@
                 
                 lastSelect.value = history[0] || '';
                 secondLastSelect.value = history[1] || '';
+            }
+
+            updateExclusionSelects(departments, exclusions) {
+                [0, 1, 2].forEach(index => {
+                    const select = document.getElementById(`exclusionSelect${index + 1}`);
+                    const currentValue = exclusions[index];
+                    
+                    let html = '<option value="">なし</option>';
+                    departments.forEach(dept => {
+                        const isSelected = dept === currentValue;
+                        html += `<option value="${dept}" ${isSelected ? 'selected' : ''}>${dept}</option>`;
+                    });
+                    
+                    select.innerHTML = html;
+                    select.value = currentValue || '';
+                });
             }
 
             renderDepartmentsList(departments, excludedDepts) {

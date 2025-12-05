@@ -1,0 +1,13 @@
+--- a/index.html
++++ b/index.html
+@@ -1217,6 +1217,10 @@
+                 };
+ 
+                 lastSelect.innerHTML = createOptions(history[0]);
+                 secondLastSelect.innerHTML = createOptions(history[1]);
++                
++                // 明示的に値を設定（ブラウザの表示状態を確実に更新）
++                lastSelect.value = history[0] || '';
++                secondLastSelect.value = history[1] || '';
+             }
+ 
